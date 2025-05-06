@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.moodsnap.databinding.ItemMoodBinding
 import java.text.SimpleDateFormat
 import java.util.*
+import android.net.Uri
 
 class MoodAdapter(private val moodList: List<MoodEntry>) :
     RecyclerView.Adapter<MoodAdapter.MoodViewHolder>() {
@@ -22,10 +23,9 @@ class MoodAdapter(private val moodList: List<MoodEntry>) :
                 SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US)
                     .format(Date(moodEntry.timestamp))
 
-            // Handle the image
             if (!moodEntry.imagePath.isNullOrEmpty()) {
-                val bitmap = BitmapFactory.decodeFile(moodEntry.imagePath)
-                binding.imageViewSelfie.setImageBitmap(bitmap)
+                val uri = Uri.parse(moodEntry.imagePath)
+                binding.imageViewSelfie.setImageURI(uri)
                 binding.imageViewSelfie.visibility = View.VISIBLE
             } else {
                 binding.imageViewSelfie.visibility = View.GONE
