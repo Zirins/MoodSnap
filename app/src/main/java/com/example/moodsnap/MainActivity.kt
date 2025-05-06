@@ -62,7 +62,8 @@ class MainActivity : AppCompatActivity() {
 
             val moodEntry = MoodEntry(
                 mood = selectedMood,
-                note = noteText
+                note = noteText,
+                imagePath = lastCapturedImagePath
             )
 
             CoroutineScope(Dispatchers.IO).launch {

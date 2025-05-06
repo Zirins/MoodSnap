@@ -9,6 +9,6 @@ interface MoodDao {
     @Insert
     suspend fun insertMood(moodEntry: MoodEntry)
 
-    @Query("SELECT * FROM MoodEntry ORDER BY timestamp DESC")
+    @Query("SELECT * FROM moods ORDER BY timestamp DESC")
     suspend fun getAllMoods(): List<MoodEntry>
 }
