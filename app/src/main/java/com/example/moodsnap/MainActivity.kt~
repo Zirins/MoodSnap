@@ -73,7 +73,6 @@ class MainActivity : AppCompatActivity() {
         historyButton.setOnClickListener {
             startActivity(Intent(this, MoodHistoryActivity::class.java))
         }
-
     }
 
     private fun checkCameraPermissionAndLaunch() {

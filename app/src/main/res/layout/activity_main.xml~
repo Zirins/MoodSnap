@@ -43,10 +43,29 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="24dp">
 
-        <RadioButton android:id="@+id/moodHappy" android:text="😊" />
-        <RadioButton android:id="@+id/moodSad" android:text="😢" />
-        <RadioButton android:id="@+id/moodAngry" android:text="😡" />
-        <RadioButton android:id="@+id/moodCool" android:text="😎" />
+        <RadioButton
+            android:id="@+id/moodHappy"
+            android:text="😊"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <RadioButton
+            android:id="@+id/moodSad"
+            android:text="😢"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <RadioButton
+            android:id="@+id/moodAngry"
+            android:text="😡"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <RadioButton
+            android:id="@+id/moodCool"
+            android:text="😎"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </RadioGroup>
 
     <!-- Mood Note -->
