@@ -35,13 +35,6 @@
         android:contentDescription="Selfie"
         android:visibility="gone" />
 
-    <Button
-        android:id="@+id/btnDelete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Delete"
-        android:layout_marginTop="8dp"
-        android:layout_gravity="end"
-        />
+    
 
 </LinearLayout>

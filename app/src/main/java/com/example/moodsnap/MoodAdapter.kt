@@ -10,13 +10,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.net.Uri
 
-class MoodAdapter(private val moodList: List<MoodEntry>) :
+class MoodAdapter(private val moodList: List<MoodEntry>,
+                  private val onDelete: (MoodEntry) -> Unit) :
     RecyclerView.Adapter<MoodAdapter.MoodViewHolder>() {
 
     class MoodViewHolder(private val binding: ItemMoodBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(moodEntry: MoodEntry) {
+        fun bind(moodEntry: MoodEntry, onDelete: (MoodEntry) -> Unit) {
             binding.textViewMood.text = moodEntry.mood
             binding.textViewNote.text = moodEntry.note
             binding.textViewTimestamp.text =
@@ -30,6 +31,9 @@ class MoodAdapter(private val moodList: List<MoodEntry>) :
             } else {
                 binding.imageViewSelfie.visibility = View.GONE
             }
+            binding.btnDelete.setOnClickListener {
+                onDelete(moodEntry)
+            }
         }
     }
 
@@ -39,7 +43,7 @@ class MoodAdapter(private val moodList: List<MoodEntry>) :
     }
 
     override fun onBindViewHolder(holder: MoodViewHolder, position: Int) {
-        holder.bind(moodList[position])
+        holder.bind(moodList[position], onDelete)
     }
 
     override fun getItemCount(): Int = moodList.size

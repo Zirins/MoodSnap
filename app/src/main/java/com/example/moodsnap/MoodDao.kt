@@ -1,6 +1,7 @@
 package com.example.moodsnap
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 
@@ -11,4 +12,7 @@ interface MoodDao {
 
     @Query("SELECT * FROM moods ORDER BY timestamp DESC")
     suspend fun getAllMoods(): List<MoodEntry>
+
+    @Delete
+    fun deleteMood(moodEntry: MoodEntry)
 }

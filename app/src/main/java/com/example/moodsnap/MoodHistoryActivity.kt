@@ -22,11 +22,22 @@ class MoodHistoryActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         db = MoodDatabase.getDatabase(this)
 
+        loadMoods()
+    }
+
+    private fun loadMoods() {
         CoroutineScope(Dispatchers.IO).launch {
             val moods = db.moodDao().getAllMoods()
             withContext(Dispatchers.Main) {
-                recyclerView.adapter = MoodAdapter(moods)
+                recyclerView.adapter = MoodAdapter(moods, this@MoodHistoryActivity::deleteMood)
             }
+        }
+    }
+
+    private fun deleteMood(mood: MoodEntry) {
+        CoroutineScope(Dispatchers.IO).launch {
+            db.moodDao().deleteMood(mood)
+            loadMoods()
         }
     }
 }
