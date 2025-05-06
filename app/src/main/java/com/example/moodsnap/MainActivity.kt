@@ -19,6 +19,8 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var db: MoodDatabase
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_CAMERA_PERMISSION = 101
+    private var lastCapturedImagePath: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,7 +116,15 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             val imageBitmap = data?.extras?.get("data") as? Bitmap
             imageBitmap?.let {
+                val filename = "selfie_${System.currentTimeMillis()}.jpg"
+                val file = File(filesDir, filename)
+                val outputStream = FileOutputStream(file)
+                it.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                outputStream.flush()
+                outputStream.close()
+
                 imageViewSelfie.setImageBitmap(it)
+                lastCapturedImagePath = file.absolutePath  // <-- Store this path
             }
         }
     }
