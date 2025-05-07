@@ -6,13 +6,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -21,8 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-import kotlin.random.Random
-
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,8 +26,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var editTextNote: EditText
     private lateinit var saveMoodButton: Button
     private lateinit var db: MoodDatabase
+
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_CAMERA_PERMISSION = 101
+    private var selfieBitmap: Bitmap? = null
     private var lastCapturedImagePath: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +43,18 @@ class MainActivity : AppCompatActivity() {
         saveMoodButton = findViewById(R.id.btnSaveMood)
         db = MoodDatabase.getDatabase(this)
 
+        // Restore our state after rotation!
+        if (savedInstanceState != null) {
+            editTextNote.setText(savedInstanceState.getString("note"))
+            val moodId = savedInstanceState.getInt("selectedMoodId", -1)
+            if (moodId != -1) moodGroup.check(moodId)
+            selfieBitmap = savedInstanceState.getParcelable("selfie")
+            selfieBitmap?.let {
+                imageViewSelfie.setImageBitmap(it)
+            }
+            lastCapturedImagePath = savedInstanceState.getString("imagePath")
+        }
+
         takeSelfieButton.setOnClickListener {
             checkCameraPermissionAndLaunch()
         }
@@ -54,61 +62,50 @@ class MainActivity : AppCompatActivity() {
         saveMoodButton.setOnClickListener {
             val selectedId = moodGroup.checkedRadioButtonId
             if (selectedId == -1) {
-                Toast.makeText(this, "Pick a mood, dumbass", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Pick a mood", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             val selectedMood = findViewById<RadioButton>(selectedId).text.toString()
             val noteText = editTextNote.text.toString()
 
-            val randomIndex = Random.nextInt(1, 5) // 1 to 4
-            val resId = resources.getIdentifier("funny$randomIndex", "drawable", packageName)
-            val imagePath = "android.resource://${packageName}/$resId"
-
             val moodEntry = MoodEntry(
                 mood = selectedMood,
                 note = noteText,
-                imagePath = imagePath
+                imagePath = lastCapturedImagePath
             )
 
             CoroutineScope(Dispatchers.IO).launch {
                 db.moodDao().insertMood(moodEntry)
             }
 
-            Toast.makeText(this, "Mood saved with meme, champ", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Mood saved, boss", Toast.LENGTH_SHORT).show()
         }
 
-
-        val historyButton = findViewById<Button>(R.id.btnViewHistory)
-        historyButton.setOnClickListener {
+        findViewById<Button>(R.id.btnViewHistory).setOnClickListener {
             startActivity(Intent(this, MoodHistoryActivity::class.java))
         }
-
     }
 
     private fun checkCameraPermissionAndLaunch() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED) {
+
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.CAMERA),
                 REQUEST_CAMERA_PERMISSION
             )
+
         } else {
             launchCamera()
         }
     }
 
-    private fun launchCamera() {
-        val funnyImages = listOf(
-            R.drawable.funny1,
-            R.drawable.funny2,
-            R.drawable.funny3,
-            R.drawable.funny4
-        )
 
-        val selectedImage = funnyImages.random()
-        imageViewSelfie.setImageResource(selectedImage)
+    private fun launchCamera() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
     }
 
     override fun onRequestPermissionsResult(
@@ -119,17 +116,23 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CAMERA_PERMISSION &&
             grantResults.isNotEmpty() &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED
-        ) {
+            grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             launchCamera()
+        } else {
+            Toast.makeText(this, "Camera permission denied, bruh.", Toast.LENGTH_SHORT).show()
         }
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             val imageBitmap = data?.extras?.get("data") as? Bitmap
             imageBitmap?.let {
+                imageViewSelfie.setImageBitmap(it)
+                selfieBitmap = it
+
                 val filename = "selfie_${System.currentTimeMillis()}.jpg"
                 val file = File(filesDir, filename)
                 val outputStream = FileOutputStream(file)
@@ -137,9 +140,16 @@ class MainActivity : AppCompatActivity() {
                 outputStream.flush()
                 outputStream.close()
 
-                imageViewSelfie.setImageBitmap(it)
-                lastCapturedImagePath = file.absolutePath  // <-- Store this path
+                lastCapturedImagePath = file.absolutePath
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("note", editTextNote.text.toString())
+        outState.putInt("selectedMoodId", moodGroup.checkedRadioButtonId)
+        outState.putParcelable("selfie", selfieBitmap)
+        outState.putString("imagePath", lastCapturedImagePath)
     }
 }
