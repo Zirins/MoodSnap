@@ -8,11 +8,13 @@
     app:cardCornerRadius="12dp"
     android:padding="12dp">
 
+    <!-- The container for all mood entry views -->
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Optional selfie image (hidden by default) -->
         <ImageView
             android:id="@+id/imageViewSelfie"
             android:layout_width="match_parent"

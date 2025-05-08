@@ -20,15 +20,21 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    // UI elements
     private lateinit var imageViewSelfie: ImageView
     private lateinit var takeSelfieButton: Button
     private lateinit var moodGroup: RadioGroup
     private lateinit var editTextNote: EditText
     private lateinit var saveMoodButton: Button
+
+    // The database
     private lateinit var db: MoodDatabase
 
+    // Camera request codes
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_CAMERA_PERMISSION = 101
+
+    // To retain image and path across state changes
     private var selfieBitmap: Bitmap? = null
     private var lastCapturedImagePath: String? = null
 
@@ -55,10 +61,12 @@ class MainActivity : AppCompatActivity() {
             lastCapturedImagePath = savedInstanceState.getString("imagePath")
         }
 
+        // Launch the camera to take selfie
         takeSelfieButton.setOnClickListener {
             checkCameraPermissionAndLaunch()
         }
 
+        // Save mood entry to database
         saveMoodButton.setOnClickListener {
             val selectedId = moodGroup.checkedRadioButtonId
             if (selectedId == -1) {
@@ -82,11 +90,13 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Mood saved, boss", Toast.LENGTH_SHORT).show()
         }
 
+        // View mood history screen
         findViewById<Button>(R.id.btnViewHistory).setOnClickListener {
             startActivity(Intent(this, MoodHistoryActivity::class.java))
         }
     }
 
+    // Check camera permission and request if not granted
     private fun checkCameraPermissionAndLaunch() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED) {
@@ -103,11 +113,13 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    // Launch camera
     private fun launchCamera() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
     }
 
+    // Request camera permission
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -124,6 +136,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    // Handle result from camera and save image locally
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -133,6 +146,7 @@ class MainActivity : AppCompatActivity() {
                 imageViewSelfie.setImageBitmap(it)
                 selfieBitmap = it
 
+                // Save image to internal storage
                 val filename = "selfie_${System.currentTimeMillis()}.jpg"
                 val file = File(filesDir, filename)
                 val outputStream = FileOutputStream(file)
@@ -145,6 +159,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Save view state across screen rotation
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString("note", editTextNote.text.toString())

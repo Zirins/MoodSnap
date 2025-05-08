@@ -45,7 +45,6 @@ class MoodAdapter(private val moodList: List<MoodEntry>,
         return MoodViewHolder(binding)
     }
 
-    // Binds the data to the ViewHolder
     override fun onBindViewHolder(holder: MoodViewHolder, position: Int) {
         holder.bind(moodList[position], onDelete)
     }
